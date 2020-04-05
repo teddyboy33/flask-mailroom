@@ -3,9 +3,10 @@ import base64
 
 from flask import Flask, render_template, request, redirect, url_for, session
 
-from model import Donation 
+from model import Donation, Donor
 
 app = Flask(__name__)
+app.secret_key = b'\x9d\xb1u\x08%\xe0\xd0p\x9bEL\xf8JC\xa3\xf4J(hAh\xa4\xcdw\x12S*,u\xec\xb8\xb8'
 
 @app.route('/')
 def home():
@@ -19,7 +20,21 @@ def all():
 
 @app.route('/create/', methods=['GET', 'POST'])
 def create():
-    return render_template('create.jinja2')
+    if request.method == 'POST':
+        try:
+            donor = Donor.select()\
+                         .where(Donor.name == request.form['name_donor'])\
+                         .get()
+        except Donor.DoesNotExist:
+            return render_template('create.jinja2', error=f"{request.form['name_donor']} is not a current donor.")
+        value = request.form['donation']
+
+        Donation(donor=donor, value=value).save()
+
+        return redirect(url_for('all'))
+
+    else:
+        return render_template('create.jinja2')
 
 
 if __name__ == "__main__":
