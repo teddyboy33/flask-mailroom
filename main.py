@@ -32,9 +32,10 @@ def create():
     """ add a new donation from an existing donor """
     if request.method == 'POST':
         try:
-            donor = Donor.select()\
-                         .where(Donor.name == request.form['name_donor'])\
-                         .get()
+            # donor = Donor.select()\
+            #              .where(Donor.name == request.form['name_donor'])\
+            #              .get()
+            donor = Donor.get(Donor.name == request.form['name_donor'])
         except Donor.DoesNotExist:
             return render_template('create.jinja2'\
                                    , error=f"{request.form['name_donor']} is not a current donor.")
